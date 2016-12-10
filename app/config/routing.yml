@@ -1,0 +1,8 @@
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+
+
+download_route:
+    path:  /uploads/{filename}
+    defaults: { _controller: AppBundle:Files:download }

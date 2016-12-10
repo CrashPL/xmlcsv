@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Datum</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ datum.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ datum.name }}</td>
+            </tr>
+            <tr>
+                <th>Surname</th>
+                <td>{{ datum.surname }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('data_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('data_edit', { 'id': datum.id }) }}">Edit</a>
+        </li>
+        <li>
+            <a href="{{ path('convert_database', { 'data' : datum.id }) }}">Konwertuj do xml i csv</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>File</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <th> download </th>
+            </tr>
+            <tr>
+                <td> {{ file.id }}</td>
+                <td> <a href="{{ asset(file.getWebPath()) }}" alt="download" >Pobierz plik</a> </td>
+            </tr>
+                
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('files_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('files_edit', { 'id': file.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

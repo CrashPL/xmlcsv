@@ -1,0 +1,9 @@
+{# empty Twig template #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <a href="{{ asset('file.csv') }}" alt="csv file">Pobierz plik csv </a>
+    <br />
+    <a href="{{ path('data_index') }}" >Sprawdz baze danych</a>
+{% endblock %}

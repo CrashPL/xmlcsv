@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <a href="{{ asset('file.xml') }}" alt="xml file">Pobierz plik xml </a>
+    <br />
+    <a href="{{ path('data_index') }}" >Sprawdz baze danych</a>
+
+{% endblock %}
