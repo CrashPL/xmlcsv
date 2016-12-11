@@ -72,15 +72,14 @@ class FilesController extends Controller
                 
                 $file2 = new File2($csvPath);
                 
-                $fileCsv = new Files();
-                $fileCsv->setFile($file2);
-                
-                $fileCsv->preUpload('csv');
-                $fileCsv->upload('csv');
-                $em->persist($fileCsv);
+                $fileTwo = new Files();
+                $fileTwo->setFile($file2);
+                $fileTwo->setExt('csv');
+                $fileTwo->preUpload();
+                $fileTwo->upload();
+                $em->persist($fileTwo);
                 $em->flush();
                 $ext = 'xml';
-                $extAccomp = 'csv';
                 //unlink('uploads/'. $nameCsv . '.csv');
                 
             }else if($file->getClientOriginalExtension() === 'csv')
@@ -112,25 +111,30 @@ class FilesController extends Controller
                         
                         $file2 = new File2($xmlPath);
                 
-                        $fileXml = new Files();
-                        $fileXml->setFile($file2);
-                
-                        $fileXml->preUpload('xml');
-                        $fileXml->upload('xml');
-                        $em->persist($fileXml);
+                        $fileTwo = new Files();
+                        $fileTwo->setFile($file2);
+                        $fileTwo->setExt('xml');
+                        $fileTwo->preUpload();
+                        $fileTwo->upload();
+                        $em->persist($fileTwo);
                         $em->flush();
                         $ext = 'csv';
-                        $extAccomp = 'xml';
                     }
                 }
             }
-            $files->preUpload($ext);
-            $files->upload($ext);
-            $files->setExtAccomp($extAccomp);
+            
             $files->setExt($ext);
+
+            $files->preUpload();
+            $files->upload();
+            $files->setFile2($fileTwo);
             
             $em->persist($files);
-            $em->flush($files);
+            $em->flush();
+            
+            $fileTwo->setFile2($files);
+            $em->persist($fileTwo);
+            $em->flush();
 
             return $this->redirectToRoute('files_show', array('id' => $files->getId()));
         }
@@ -150,10 +154,8 @@ class FilesController extends Controller
     public function showAction(Files $file)
     {
         $deleteForm = $this->createDeleteForm($file);
-        $file2 = $this->getDoctrine()->getManager()->getRepository('AppBundle:Files')->findOneById($file->getId() - 1);
         return $this->render('files/show.html.twig', array(
             'file' => $file,
-            'file2' => $file2,
             'delete_form' => $deleteForm->createView(),
         ));
     }

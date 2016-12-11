@@ -5,7 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\File;
-
+use AppBundle\Entity\Files;
 
 
 /**
@@ -28,7 +28,10 @@ class Files
     /**
      * @var int
      *
-     * @Assert\File(maxSize="6000000")
+     * @Assert\File(
+     *      maxSize="6000000",
+     *      mimeTypes = {"application/xml", "application/csv","text/plain"}
+     * )
      */
     private $file;
     
@@ -39,16 +42,18 @@ class Files
     
     private $filename;
     
+     /**
+     * One Product has One Shipping.
+     * @ORM\OneToOne(targetEntity="Files")
+     * @ORM\JoinColumn(name="file2_id", referencedColumnName="id", nullable=true)
+     */
+    private $file2;
+   
+    
     /**
      * @ORM\Column(type="string", length=30,nullable=true)
      */
-    
-    public $extAccomp;
-    
-    /**
-     * @ORM\Column(type="string", length=30,nullable=true)
-     */
-    public $ext;
+    public $ext = null;
     /**
      * 
      * @return type
@@ -98,7 +103,7 @@ class Files
      * 
      * @return type
      */
-    public function upload($extension = null)
+    public function upload()
 {
         
     // zmienna file może być pusta jeśli pole nie jest wymagane
@@ -106,16 +111,16 @@ class Files
         return;
     }
     
-    if($extension === null)
+    if($this->ext === null)
     {
-        $extension = $this->file->guessExtension();
+        $this->ext = $this->file->guessExtension();
     }
     // używamy oryginalnej nazwy pliku ale nie powinieneś tego robić
     // aby zabezpieczyć się przed ewentualnymi problemami w bezpieczeństwie
 
     // metoda move jako atrybuty przyjmuje ścieżkę docelową gdzie trafi przenoszony plik
     // oraz ścieżkę z której ma przenieś plik
-    $this->file->move($this->getUploadRootDir(), $this->filename . '.' . $extension);
+    $this->file->move($this->getUploadRootDir(), $this->filename . '.' . $this->ext);
 
 
     
@@ -131,13 +136,13 @@ class Files
             // zrób cokolwiek chcesz aby wygenerować unikalną nazwę
             // ustaw zmienną patch ścieżką do zapisanego pliku
             
-            if($extension === null)
+            if($this->ext === null)
             {
-                $extension = $this->file->guessExtension();
+                $this->ext = $this->file->guessExtension();
             }
             
             $this->filename = sha1(uniqid(mt_rand(), true));
-            $this->setPath($this->filename . '.' . $extension);
+            $this->setPath($this->filename . '.' . $this->ext);
         }
        
     }
@@ -145,17 +150,17 @@ class Files
     /**
      * @ORM\PreUpdate()
      */
-    public function preUpdateUpload($extension = null)
+    public function preUpdateUpload()
     {
-        if($extension === null)
+        if($this->ext === null)
         {
-            $extension = $this->file->guessExtension();
+            $this->ext = $this->file->guessExtension();
         }
         
          if($this->file !== null){
             $this->removeUpload();
             $this->filename = sha1(uniqid(mt_rand(), true));
-            $this->setPath($this->filename . '.' . $extension);
+            $this->setPath($this->filename . '.' . $this->ext);
         }
     }
     
@@ -190,16 +195,7 @@ class Files
        return $this;
     }
     
-    public function setExtAccomp($ext)
-    {
-        $this->extAccomp = $ext;
-        return $this;
-    }
-    
-    public function getExtAccomp()
-    {
-        return $this->extAccomp;
-    }
+   
     
     public function setExt($ext)
     {
@@ -210,5 +206,17 @@ class Files
     public function getExt()
     {
         return $this->ext;
+    }
+    
+    
+    public function setFile2(Files $file2)
+    {
+        $this->file2 = $file2;
+        return $this;
+    }
+    
+    public function getFile2()
+    {
+        return $this->file2;
     }
 }
