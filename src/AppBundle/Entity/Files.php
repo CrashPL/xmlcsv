@@ -88,7 +88,7 @@ class Files
      * 
      * @return type
      */
-    public function upload()
+    public function upload($extension = null)
 {
         
     // zmienna file może być pusta jeśli pole nie jest wymagane
@@ -96,12 +96,16 @@ class Files
         return;
     }
     
+    if($extension === null)
+    {
+        $extension = $this->file->guessExtension();
+    }
     // używamy oryginalnej nazwy pliku ale nie powinieneś tego robić
     // aby zabezpieczyć się przed ewentualnymi problemami w bezpieczeństwie
 
     // metoda move jako atrybuty przyjmuje ścieżkę docelową gdzie trafi przenoszony plik
     // oraz ścieżkę z której ma przenieś plik
-    $this->file->move($this->getUploadRootDir(), $this->filename . '.' . $this->file->guessExtension());
+    $this->file->move($this->getUploadRootDir(), $this->filename . '.' . $extension);
 
 
     
@@ -112,13 +116,18 @@ class Files
     /**
      * @ORM\PrePersist()
      */
-    public function preUpload()
+    public function preUpload($extension = null)
     {        if  (null !== $this->file){
             // zrób cokolwiek chcesz aby wygenerować unikalną nazwę
             // ustaw zmienną patch ścieżką do zapisanego pliku
-
+            
+            if($extension === null)
+            {
+                $extension = $this->file->guessExtension();
+            }
+            
             $this->filename = sha1(uniqid(mt_rand(), true));
-            $this->setPath($this->filename . '.' . $this->file->guessExtension());
+            $this->setPath($this->filename . '.' . $extension);
         }
        
     }
@@ -126,12 +135,17 @@ class Files
     /**
      * @ORM\PreUpdate()
      */
-    public function preUpdateUpload()
+    public function preUpdateUpload($extension = null)
     {
+        if($extension === null)
+        {
+            $extension = $this->file->guessExtension();
+        }
+        
          if($this->file !== null){
             $this->removeUpload();
             $this->filename = sha1(uniqid(mt_rand(), true));
-            $this->setPath($this->filename . '.' . $this->file->guessExtension());
+            $this->setPath($this->filename . '.' . $extension);
         }
     }
     

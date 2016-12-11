@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Entity\Data;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File as File2;
 /**
  * File controller.
  *
@@ -59,27 +60,68 @@ class FilesController extends Controller
                 
                 $em->persist($data);
                 $em->flush();
+                
                 $nameCsv = sha1(uniqid(mt_rand(), true));
-                $csv = $files->getAbsolutePath(). 'uploads/'. $nameCsv . '.csv';
-                $fp = fopen( $csv ,'w');
+                $fp = fopen( 'temp/'. $nameCsv . '.csv','w');
                 $objects = array($xml->name,$xml->surname);
                 fputcsv($fp, $objects);
                 fclose($fp);
-
-                $uf = new UploadedFile($csv,$nameCsv . '.csv');
+                $csvPath = realpath($this->get('kernel')->getRootDir(). '/../web/temp/'. $nameCsv . '.csv');
                 
-                $f = new Files();
-                $f->setFile($uf);
+                $file2 = new File2($csvPath);
                 
-                $f->preUpload();
-                $f->upload();
-                $em->persist($f);
+                $fileCsv = new Files();
+                $fileCsv->setFile($file2);
+                
+                $fileCsv->preUpload('csv');
+                $fileCsv->upload('csv');
+                $em->persist($fileCsv);
                 $em->flush();
                 
+                //unlink('uploads/'. $nameCsv . '.csv');
                 
+            }else if($file->getClientOriginalExtension() === 'csv')
+            {
+                if (($handle = fopen($file, "r")) !== FALSE) 
+                {
+                    while (($d = fgetcsv($handle, 1000, ",")) !== FALSE) 
+                    {
+                        $data = new Data();
+                        $data->setName($d[0]);
+                        $data->setSurname($d[1]);
+                        $em->persist($data);
+                        $em->flush();
+
+                 
+                        $resultXml = "<?xml version='1.0' encoding='utf-8'?>";
+                        $resultXml .= '<result>';
+                        $resultXml .= '<name>';
+                        $resultXml .= trim($d[0]);
+                        $resultXml .= '</name>';
+                        $resultXml .= '<surname>';
+                        $resultXml .= trim($d[1]);
+                        $resultXml .= '</surname>';
+                        $resultXml .= '</result>';
+                        
+                        $nameXml = sha1(uniqid(mt_rand(), true));
+                        file_put_contents('temp/'. $nameXml . '.xml', $resultXml);
+                        $xmlPath = realpath($this->get('kernel')->getRootDir(). '/../web/temp/'. $nameXml . '.xml');
+                        
+                        $file2 = new File2($xmlPath);
+                
+                        $fileXml = new Files();
+                        $fileXml->setFile($file2);
+                
+                        $fileXml->preUpload('xml');
+                        $fileXml->upload('xml');
+                        $em->persist($fileXml);
+                        $em->flush();
+                        
+                    }
+                }
             }
-            $files->preUpload();
-            $files->upload();
+            $files->preUpload('csv');
+            $files->upload('csv');
 
             $em->persist($files);
             $em->flush($files);
