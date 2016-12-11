@@ -38,7 +38,17 @@ class Files
     public $path;
     
     private $filename;
-
+    
+    /**
+     * @ORM\Column(type="string", length=30,nullable=true)
+     */
+    
+    public $extAccomp;
+    
+    /**
+     * @ORM\Column(type="string", length=30,nullable=true)
+     */
+    public $ext;
     /**
      * 
      * @return type
@@ -178,5 +188,27 @@ class Files
     {
        $this->file = $file;
        return $this;
+    }
+    
+    public function setExtAccomp($ext)
+    {
+        $this->extAccomp = $ext;
+        return $this;
+    }
+    
+    public function getExtAccomp()
+    {
+        return $this->extAccomp;
+    }
+    
+    public function setExt($ext)
+    {
+        $this->ext = $ext;
+        return $this;
+    }
+    
+    public function getExt()
+    {
+        return $this->ext;
     }
 }

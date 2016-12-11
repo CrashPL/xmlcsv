@@ -47,7 +47,9 @@ class FilesController extends Controller
         $form = $this->createForm('AppBundle\Form\FilesType', $files);
         $form->handleRequest($request);
         $em = $this->getDoctrine()->getManager();
-
+        $ext = '';
+        $extAccomp = '';
+        
         if ($form->isSubmitted() && $form->isValid()) {
             $file = $form->getData()->getFile();
             
@@ -77,7 +79,8 @@ class FilesController extends Controller
                 $fileCsv->upload('csv');
                 $em->persist($fileCsv);
                 $em->flush();
-                
+                $ext = 'xml';
+                $extAccomp = 'csv';
                 //unlink('uploads/'. $nameCsv . '.csv');
                 
             }else if($file->getClientOriginalExtension() === 'csv')
@@ -116,13 +119,16 @@ class FilesController extends Controller
                         $fileXml->upload('xml');
                         $em->persist($fileXml);
                         $em->flush();
-                        
+                        $ext = 'csv';
+                        $extAccomp = 'xml';
                     }
                 }
             }
-            $files->preUpload('csv');
-            $files->upload('csv');
-
+            $files->preUpload($ext);
+            $files->upload($ext);
+            $files->setExtAccomp($extAccomp);
+            $files->setExt($ext);
+            
             $em->persist($files);
             $em->flush($files);
 
@@ -144,9 +150,10 @@ class FilesController extends Controller
     public function showAction(Files $file)
     {
         $deleteForm = $this->createDeleteForm($file);
-
+        $file2 = $this->getDoctrine()->getManager()->getRepository('AppBundle:Files')->findOneById($file->getId() - 1);
         return $this->render('files/show.html.twig', array(
             'file' => $file,
+            'file2' => $file2,
             'delete_form' => $deleteForm->createView(),
         ));
     }

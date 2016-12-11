@@ -8,10 +8,12 @@
             <tr>
                 <th>Id</th>
                 <th> download </th>
+                <th> file accompanying </th>
             </tr>
             <tr>
                 <td> {{ file.id }}</td>
-                <td> <a href="{{ asset(file.getWebPath()) }}" alt="download" >Pobierz plik</a> </td>
+                <td> <a href="{{ asset(file.getWebPath()) }}" alt="download" >Pobierz plik {{ file.ext }}</a> </td>
+                <td> <a href="{{ asset(file2.getWebPath()) }}">Pobierz plik {{ file.extAccomp }}</td>
             </tr>
                 
         </tbody>
